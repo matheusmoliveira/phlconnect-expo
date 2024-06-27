@@ -56,7 +56,7 @@ const SignIn: React.FC = () => {
           />
         </View>
         <View style={styles.containerInit}>
-          <Text style={styles.textTitle}>Bem-Vindo</Text>
+          <Text style={styles.textTitle}>Bem Vindo</Text>
           <Text style={styles.textSubtitle}>Faça login na sua conta</Text>
         </View>
         <View style={styles.inputContainer}>
