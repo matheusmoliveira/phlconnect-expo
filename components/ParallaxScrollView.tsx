@@ -13,6 +13,8 @@ import Animated, {
   useScrollViewOffset
 } from 'react-native-reanimated'
 
+import { router } from 'expo-router'
+
 import { ThemedView } from '@/components/ThemedView'
 
 import { useSession } from '../app/ctx'
