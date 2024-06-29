@@ -23,9 +23,11 @@ const SignIn: React.FC = () => {
   const { signIn } = useSession()
 
   const handleLogin = async () => {
-    await signIn(cpfCnpj, password)
+    await signIn(cpfCnpj, password, rememberMe)
     if (signIn) {
       router.replace('/')
+    } else {
+      alert('Credenciais inválidas')
     }
   }
 
