@@ -1,6 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons'
 import React, { useEffect, useState } from 'react'
-
 import {
   StyleSheet,
   Image,
@@ -16,9 +15,8 @@ import { ExternalLink } from '@/components/ExternalLink'
 import ParallaxScrollView from '@/components/ParallaxScrollView'
 import { ThemedText } from '@/components/ThemedText'
 import { ThemedView } from '@/components/ThemedView'
-
+import { LinearGradient } from 'expo-linear-gradient'
 import axios from 'axios'
-
 import { useSession } from '../ctx'
 
 export default function TabTwoScreen() {
@@ -31,11 +29,10 @@ export default function TabTwoScreen() {
     router.replace('../sign-in') // Redireciona para a tela de login
   }
 
-  const fetchData = async (id: string) => {
+  const fetchData = async id => {
     try {
       const response = await axios.get(
         `https://api.mikweb.com.br/v1/admin/customers/${id}`,
-
         {
           headers: {
             Authorization: 'Bearer SXYLPWX2FW:QTCVEE6KKC988A68XZZTOZMNCNOJJZAU'
@@ -60,93 +57,88 @@ export default function TabTwoScreen() {
 
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerBackgroundColor={{ light: '#D8D8D8', dark: '#D8D8D8' }}
       headerImage={
         <Image
-          source={require('@/assets/images/bg-phl.jpg')}
+          source={require('@/assets/images/logo-red.png')}
           style={styles.reactLogo}
         />
       }
     >
-      {customer && (
-        <>
-          <ThemedView style={styles.titleContainer}>
-            <Image
-              source={require('@/assets/images/user2.png')}
-              style={styles.reactLogo1}
-            />
-            <ThemedText type="title">{customer.full_name}</ThemedText>
+      <LinearGradient colors={['#8D1F1F', '#B73737']} style={styles.gradient1}>
+        {customer && (
+          <>
+            <View style={styles.titleContainer}>
+              <ThemedText Text type="title">
+                Usuário
+              </ThemedText>
+            </View>
+
+            <ThemedText style={styles.titleName} type="title">
+              {customer.full_name}
+            </ThemedText>
             <Text style={styles.email}>{customer.email}</Text>
-          </ThemedView>
 
-          <View style={styles.userInfoContainer}>
-            {/*  <Text style={styles.label}>Username:</Text> */}
-            {/* <Text style={styles.value}>{customer.email}</Text> */}
-            <Text style={styles.label}>Conta criada:</Text>
-            <Text style={styles.value}>
-              {new Date(customer.created_at).toLocaleDateString()}
-            </Text>
-            {/*  <Text style={styles.label}>Last Login:</Text> */}
-            {/* <Text style={styles.value}> */}
-            {/* {new Date(user.lastLogin).toLocaleDateString()} */}
-            {/* </Text> */}
-            <Text style={styles.label}>Contato:</Text>
-            <Text style={styles.value}>{customer.cell_phone_number_1}</Text>
-            <Text style={styles.label}>Endereço:</Text>
-            <Text style={styles.value}>
-              {`${customer.street}, ${customer.number}, ${customer.neighborhood}, ${customer.city}, ${customer.state}, ${customer.zip_code}`}
-            </Text>
-          </View>
-
-          {/* <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Ionicons name="exit-outline" size={30} color="#fff" />
-          </TouchableOpacity> */}
-        </>
-      )}
+            <View style={styles.userInfoContainer}>
+              <Text style={styles.label}>Conta criada:</Text>
+              <Text style={styles.value}>
+                {new Date(customer.created_at).toLocaleDateString()}
+              </Text>
+              <Text style={styles.label}>Contato:</Text>
+              <Text style={styles.value}>{customer.cell_phone_number_1}</Text>
+              <Text style={styles.label}>Endereço:</Text>
+              <Text style={styles.value}>
+                {`${customer.street}, ${customer.number}, ${customer.neighborhood}, ${customer.city}, ${customer.state}, ${customer.zip_code}`}
+              </Text>
+            </View>
+          </>
+        )}
+      </LinearGradient>
     </ParallaxScrollView>
   )
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute'
+  container: {
+    flex: 1,
+    height: '100%'
   },
-  titleContainer: {
-    flexDirection: 'column',
+  gradient1: {
+    flex: 1,
+    borderTopLeftRadius: 60,
+    borderTopRightRadius: 60,
+    width: '100%',
     alignItems: 'center',
-    gap: 8
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
+    paddingBottom: '60%'
   },
   reactLogo: {
-    height: '100%',
+    height: '50%',
     width: '100%',
     bottom: 0,
     left: 0,
-    position: 'absolute'
+    resizeMode: 'contain'
   },
-  reactLogo1: {
-    height: 100, // Certifique-se de que a altura e a largura são iguais
-    width: 100,
-    bottom: 0,
-    left: 0,
-    borderRadius: 50,
-    overflow: 'hidden', // Adicionado para garantir que a imagem se encaixe dentro do contêiner circular
-    objectFit: 'contain' // Adicionado para garantir que a imagem se ajuste bem ao contêiner circular
+  titleContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: '5%',
+    marginBottom: '5%'
   },
-  logoutButton: {
-    position: 'absolute',
-    top: 10,
-    right: 20,
-    backgroundColor: '#ff5c5c',
-    padding: 10,
-    borderRadius: 50
+  titleName: {
+    marginTop: 8,
+    fontSize: 18,
+    color: '#FFF'
   },
   email: {
     marginTop: 8,
-    fontSize: 16,
-    color: '#666'
+    fontSize: 14,
+    color: '#FFF'
   },
   userInfoContainer: {
     paddingHorizontal: 20,
@@ -155,10 +147,12 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginTop: 10
+    marginTop: 10,
+    color: '#FFF'
   },
   value: {
-    fontSize: 16,
-    marginBottom: 10
+    fontSize: 14,
+    marginBottom: 10,
+    color: '#FFF'
   }
 })

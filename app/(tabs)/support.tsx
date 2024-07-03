@@ -18,6 +18,7 @@ import { ExternalLink } from '@/components/ExternalLink'
 import ParallaxScrollView from '@/components/ParallaxScrollView'
 import { ThemedText } from '@/components/ThemedText'
 import { ThemedView } from '@/components/ThemedView'
+import { LinearGradient } from 'expo-linear-gradient'
 
 import axios from 'axios'
 
@@ -90,50 +91,70 @@ export default function TabTwoScreen() {
 
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
+      headerBackgroundColor={{ light: '#D8D8D8', dark: '#D8D8D8' }}
       headerImage={
         <Image
-          source={require('@/assets/images/bg-phl.jpg')}
+          source={require('@/assets/images/logo-red.png')}
           style={styles.reactLogo}
         />
       }
     >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Suporte</ThemedText>
-      </ThemedView>
-
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        {customer && (
-          <View style={styles.customerTop}>
-            <View style={[styles.customerInfo, styles.disabled]}>
-              <Text style={styles.customerDetail}>
-                Nome: {customer.full_name}
-              </Text>
+      <LinearGradient colors={['#8D1F1F', '#B73737']} style={styles.gradient1}>
+        <View style={styles.titleContainer}>
+          <ThemedText type="title">Suporte</ThemedText>
+        </View>
+        <View style={styles.container}>
+          {customer && (
+            <View style={styles.customerTop}>
+              <View style={[styles.customerInfo, styles.disabled]}>
+                <Text style={styles.customerDetail}>
+                  Nome: {customer.full_name}
+                </Text>
+              </View>
+              <View style={[styles.customerInfo, styles.disabled]}>
+                <Text style={styles.customerDetail}>
+                  E-mail: {customer.email}
+                </Text>
+              </View>
             </View>
-            <View style={[styles.customerInfo, styles.disabled]}>
-              <Text style={styles.customerDetail}>
-                E-mail: {customer.email}
-              </Text>
-            </View>
-          </View>
-        )}
+          )}
 
-        <TextInput
-          style={styles.messageclient}
-          placeholder="Digite sua mensagem aqui"
-          multiline
-          onChangeText={text => setMessage(text)}
-          value={message}
-        />
-        <TouchableOpacity onPress={handlePost} style={styles.buttonPost}>
-          <Text>Abrir Chamado</Text>
-        </TouchableOpacity>
-      </View>
+          <TextInput
+            style={styles.messageclient}
+            placeholder="Digite sua mensagem aqui"
+            multiline
+            onChangeText={text => setMessage(text)}
+            value={message}
+          />
+          <TouchableOpacity onPress={handlePost} style={styles.buttonPost}>
+            <Text style={styles.buttonText}>Abrir Chamado</Text>
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
     </ParallaxScrollView>
   )
 }
 
 const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%'
+  },
+  gradient1: {
+    flex: 1,
+    borderTopLeftRadius: 60,
+    borderTopRightRadius: 60,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
+    paddingBottom: '40%'
+  },
   headerImage: {
     color: '#808080',
     bottom: -90,
@@ -142,19 +163,22 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flexDirection: 'row',
-    gap: 8
+    gap: 8,
+    marginTop: '5%',
+    marginBottom: '5%'
   },
   customerTop: {
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    alignSelf: 'flex-start'
+    alignSelf: 'center'
   },
   customerInfo: {
     width: '100%',
     borderColor: 'gray',
     borderRadius: 10,
-    backgroundColor: '#FFF',
-    borderWidth: 0.5,
+    color: '#FFF',
+    backgroundColor: '#A74141',
+    borderWidth: 0.1,
     marginBottom: 20,
     padding: 10,
     ...Platform.select({
@@ -169,13 +193,19 @@ const styles = StyleSheet.create({
       }
     })
   },
+  customerDetail: {
+    color: '#FFF'
+  },
+  buttonText: {
+    color: '#FFF'
+  },
   messageclient: {
     justifyContent: 'flex-start',
     height: 150,
-    width: '100%',
+    width: '80%',
     borderColor: 'gray',
     borderRadius: 10,
-    backgroundColor: '#FFF',
+    backgroundColor: '#D8D8D8',
     borderWidth: 0.5,
     marginBottom: 50,
     padding: 10,
@@ -192,7 +222,7 @@ const styles = StyleSheet.create({
     })
   },
   buttonPost: {
-    backgroundColor: '#FFF',
+    backgroundColor: '#A74141',
     paddingLeft: 20,
     paddingRight: 20,
     paddingTop: 10,
@@ -211,11 +241,11 @@ const styles = StyleSheet.create({
     })
   },
   reactLogo: {
-    height: '100%',
+    height: '50%',
     width: '100%',
     bottom: 0,
     left: 0,
-    position: 'absolute'
+    resizeMode: 'contain'
   },
   codetextPayment2: {
     color: '#000',
@@ -225,6 +255,6 @@ const styles = StyleSheet.create({
     opacity: 0.5 // Opacidade reduzida para indicar desativado
   },
   disabledText: {
-    color: '#aaa' // Cor de texto mais clara para indicar desativado
+    color: '#FFF' // Cor de texto mais clara para indicar desativado
   }
 })

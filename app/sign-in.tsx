@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   Image,
   Linking,
-  Dimensions
+  Dimensions,
+  ActivityIndicator
 } from 'react-native'
 import { useSession } from './ctx'
 import { router } from 'expo-router'
@@ -21,15 +22,23 @@ const SignIn: React.FC = () => {
   const [cpfCnpj, setCpfCnpj] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const { signIn } = useSession()
 
   const handleLogin = async () => {
-    await signIn(cpfCnpj, password, rememberMe)
-    if (signIn) {
-      router.replace('/')
-    } else {
-      alert('Credenciais inválidas')
+    setLoading(true)
+    try {
+      await signIn(cpfCnpj, password, rememberMe)
+      if (signIn) {
+        router.replace('/')
+      } else {
+        alert('Credenciais inválidas')
+      }
+    } catch (error) {
+      console.error('Erro ao fazer login:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -67,7 +76,6 @@ const SignIn: React.FC = () => {
           >
             <View style={styles.containerInit}>
               <Text style={styles.textTitle}>olá</Text>
-              {/* <Text style={styles.textSubtitle}>Faça login na sua conta</Text> */}
             </View>
             <View style={styles.ViewInput}>
               <View style={styles.ViewIcon}>
@@ -89,9 +97,7 @@ const SignIn: React.FC = () => {
                 <Icon name="lock" size={55} color="#FFF" />
               </View>
               <View style={styles.inputContainer}>
-                {/* <Icon name="lock" size={23} color="#900" /> */}
                 <Text style={styles.textInput}>Senha:</Text>
-
                 <TextInput
                   style={styles.input}
                   placeholder="******************"
@@ -117,14 +123,21 @@ const SignIn: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.buttonLogin} onPress={handleLogin}>
-              <Text style={styles.textLogin}>Acessar conta</Text>
+            <TouchableOpacity
+              style={styles.buttonLogin}
+              onPress={handleLogin}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#FFF" />
+              ) : (
+                <Text style={styles.textLogin}>Acessar conta</Text>
+              )}
             </TouchableOpacity>
           </LinearGradient>
         </View>
       </LinearGradient>
       <View style={styles.viewWhatsAppLink}>
-        {/* <Text style={styles.whatsAppLink}>Precisa de ajuda? </Text> */}
         <TouchableOpacity onPress={openWhatsApp}>
           <Text style={styles.whatsAppLinkHighlight}>Ajuda</Text>
         </TouchableOpacity>
@@ -143,8 +156,8 @@ const styles = StyleSheet.create({
   },
   gradient1: {
     flex: 1,
-    borderTopLeftRadius: '60%',
-    borderTopRightRadius: '60%',
+    borderTopLeftRadius: 60,
+    borderTopRightRadius: 60,
     width: '100%',
     alignItems: 'center'
   },
@@ -239,15 +252,6 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 16,
     fontWeight: 'bold'
-  },
-  viewWhatsAppLink: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20
-  },
-  whatsAppLink: {
-    color: '#7D7D7D'
   },
   viewWhatsAppLink: {
     position: 'absolute',
