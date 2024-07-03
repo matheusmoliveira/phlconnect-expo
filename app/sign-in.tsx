@@ -7,11 +7,14 @@ import {
   TouchableOpacity,
   Image,
   Linking,
-  Dimensions
+  Dimensions,
+  ActivityIndicator
 } from 'react-native'
 import { useSession } from './ctx'
 import { router } from 'expo-router'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+
+import { LinearGradient } from 'expo-linear-gradient'
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
@@ -19,13 +22,23 @@ const SignIn: React.FC = () => {
   const [cpfCnpj, setCpfCnpj] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const { signIn } = useSession()
 
   const handleLogin = async () => {
-    await signIn(cpfCnpj, password)
-    if (signIn) {
-      router.replace('/')
+    setLoading(true)
+    try {
+      await signIn(cpfCnpj, password, rememberMe)
+      if (signIn) {
+        router.replace('/')
+      } else {
+        alert('Credenciais inválidas')
+      }
+    } catch (error) {
+      console.error('Erro ao fazer login:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -48,62 +61,85 @@ const SignIn: React.FC = () => {
       resetScrollToCoords={{ x: 0, y: 0 }}
       scrollEnabled={true}
     >
-      <View style={styles.container}>
-        <View style={styles.containerLogo}>
-          <Image
-            source={require('@/assets/images/bg-phl.jpg')}
-            style={styles.imgLogo}
-          />
-        </View>
-        <View style={styles.containerInit}>
-          <Text style={styles.textTitle}>Bem Vindo</Text>
-          <Text style={styles.textSubtitle}>Faça login na sua conta</Text>
-        </View>
-        <View style={styles.inputContainer}>
-          <Icon name="account" size={23} color="#900" />
-          <TextInput
-            style={styles.input}
-            placeholder="CPF/CNPJ"
-            value={cpfCnpj}
-            onChangeText={setCpfCnpj}
-          />
-        </View>
-
-        <View style={styles.inputContainer}>
-          <Icon name="lock" size={23} color="#900" />
-          <TextInput
-            style={styles.input}
-            placeholder="••••••••"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
-        </View>
-
-        <View style={styles.rememberMeContainer}>
-          <TouchableOpacity
-            onPress={() => setRememberMe(!rememberMe)}
-            style={styles.rememberMeButton}
-          >
-            <Icon
-              name={rememberMe ? 'radiobox-marked' : 'radiobox-blank'}
-              size={20}
-              color="#900"
+      <LinearGradient colors={['#D8D8D8', '#747474']} style={styles.gradient}>
+        <View style={styles.container}>
+          <View style={styles.containerLogo}>
+            <Image
+              source={require('@/assets/images/logo-red.png')}
+              style={styles.imgLogo}
             />
-            <Text style={styles.rememberMeText}>Lembrar-me</Text>
-          </TouchableOpacity>
-        </View>
+          </View>
 
-        <TouchableOpacity style={styles.buttonLogin} onPress={handleLogin}>
-          <Text style={styles.textLogin}>Login</Text>
-        </TouchableOpacity>
-      </View>
+          <LinearGradient
+            colors={['#8D1F1F', '#B73737']}
+            style={styles.gradient1}
+          >
+            <View style={styles.containerInit}>
+              <Text style={styles.textTitle}>olá</Text>
+            </View>
+            <View style={styles.ViewInput}>
+              <View style={styles.ViewIcon}>
+                <Icon name="account" size={55} color="#FFF" />
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.textInput}>Usuário CPF ou CNPJ:</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="000.000.000-00"
+                  placeholderTextColor="#FFFFFF"
+                  value={cpfCnpj}
+                  onChangeText={setCpfCnpj}
+                />
+              </View>
+            </View>
+            <View style={styles.ViewInput}>
+              <View style={styles.ViewIcon}>
+                <Icon name="lock" size={55} color="#FFF" />
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.textInput}>Senha:</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="******************"
+                  placeholderTextColor="#FFFFFF"
+                  secureTextEntry
+                  value={password}
+                  onChangeText={setPassword}
+                />
+              </View>
+            </View>
+
+            <View style={styles.rememberMeContainer}>
+              <TouchableOpacity
+                onPress={() => setRememberMe(!rememberMe)}
+                style={styles.rememberMeButton}
+              >
+                <Icon
+                  name={rememberMe ? 'radiobox-marked' : 'radiobox-blank'}
+                  size={25}
+                  color="#FFF"
+                />
+                <Text style={styles.rememberMeText}>Lembrar usuário</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={styles.buttonLogin}
+              onPress={handleLogin}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#FFF" />
+              ) : (
+                <Text style={styles.textLogin}>Acessar conta</Text>
+              )}
+            </TouchableOpacity>
+          </LinearGradient>
+        </View>
+      </LinearGradient>
       <View style={styles.viewWhatsAppLink}>
-        <Text style={styles.whatsAppLink}>Precisa de ajuda? </Text>
         <TouchableOpacity onPress={openWhatsApp}>
-          <Text style={styles.whatsAppLinkHighlight}>
-            Fale conosco no WhatsApp
-          </Text>
+          <Text style={styles.whatsAppLinkHighlight}>Ajuda</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAwareScrollView>
@@ -115,55 +151,85 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center'
   },
+  gradient: {
+    flex: 1
+  },
+  gradient1: {
+    flex: 1,
+    borderTopLeftRadius: 60,
+    borderTopRightRadius: 60,
+    width: '100%',
+    alignItems: 'center'
+  },
   container: {
     flex: 1,
     alignItems: 'center',
-
-    padding: 0
+    justifyContent: 'center'
   },
   containerLogo: {
     width: '100%',
-    height: Dimensions.get('window').height * 0.35,
-    marginBottom: 20
+    marginTop: '20%',
+    height: Dimensions.get('window').height * 0.13,
+    marginBottom: 30
   },
   imgLogo: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover'
+    resizeMode: 'contain'
   },
   containerInit: {
     alignItems: 'center',
-    marginBottom: 20
+    marginTop: 55
   },
   textTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#000'
+    color: '#FFF'
   },
   textSubtitle: {
     fontSize: 16,
     color: '#7D7D7D'
   },
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
     marginVertical: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
+    borderBottomWidth: 1,
+    borderBottomColor: '#FFF',
     borderRadius: 10,
     padding: 10,
-    backgroundColor: '#FFF',
-    width: '85%'
+    width: '55%'
+  },
+  ViewInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20
+  },
+  ViewIcon: {
+    backgroundColor: '#A74141',
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingRight: 1,
+    paddingLeft: 1,
+    borderRadius: 20
+  },
+  textInput: {
+    fontSize: 12,
+    color: '#FFF'
   },
   input: {
     flex: 1,
-    marginLeft: 10
+    marginLeft: 0,
+    marginTop: 10,
+    color: '#FFF' // Also setting input text color to white
   },
   rememberMeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 10
+    marginVertical: 10,
+    marginTop: 30
   },
   rememberMeButton: {
     flexDirection: 'row',
@@ -172,12 +238,12 @@ const styles = StyleSheet.create({
   rememberMeText: {
     marginLeft: 10,
     fontSize: 14,
-    color: '#7D7D7D'
+    color: '#FFF'
   },
   buttonLogin: {
-    backgroundColor: '#434343',
-    borderRadius: 25,
-    width: '85%',
+    backgroundColor: '#A74141',
+    borderRadius: 20,
+    width: '55%',
     paddingVertical: 15,
     alignItems: 'center',
     marginTop: 20
@@ -188,20 +254,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   viewWhatsAppLink: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20
-  },
-  whatsAppLink: {
-    color: '#7D7D7D'
-  },
-  whatsAppLinkHighlight: {
-    color: '#25D366'
-  },
-  viewWhatsAppLink: {
     position: 'absolute',
-    bottom: 40,
+    bottom: 50,
     left: 0,
     right: 0,
     flexDirection: 'row',
@@ -212,7 +266,7 @@ const styles = StyleSheet.create({
     color: '#7D7D7D'
   },
   whatsAppLinkHighlight: {
-    color: '#25D366'
+    color: '#FFF'
   }
 })
 

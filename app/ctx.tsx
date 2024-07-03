@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from 'react'
-import { useStorageState } from './useStorageState'
+import * as SecureStore from 'expo-secure-store'
 
 interface AuthContextType {
   signIn: (cpfCnpj: string, password: string, rememberMe: boolean) => void
@@ -22,25 +22,29 @@ export function useSession() {
       throw new Error('useSession must be wrapped in a <SessionProvider />')
     }
   }
-
   return value
 }
 
 export function SessionProvider(props: React.PropsWithChildren) {
-  const [[isLoading, session], setSession] = useStorageState<{
-    id: string
-    cpfCnpj: string
-  } | null>('session')
+  const [[isLoading, session], setSession] = useState<
+    [boolean, { id: string; cpfCnpj: string } | null]
+  >([true, null])
 
   useEffect(() => {
-    const checkSession = async () => {
-      const storedSession = await useStorageState.getItem('session')
-      if (storedSession) {
-        setSession(storedSession)
+    const loadSession = async () => {
+      try {
+        const storedSession = await SecureStore.getItemAsync('session')
+        if (storedSession) {
+          setSession([false, JSON.parse(storedSession)])
+        } else {
+          setSession([false, null])
+        }
+      } catch (error) {
+        setSession([false, null])
       }
     }
 
-    checkSession()
+    loadSession()
   }, [])
 
   const signIn = async (
@@ -82,17 +86,17 @@ export function SessionProvider(props: React.PropsWithChildren) {
       )
 
       if (customer) {
-        if (rememberMe) {
-          setSession({
-            id: customer.id,
-            cpfCnpj: customer.cpf_cnpj,
-            password: customer.cpf_cnpj
-          })
-        }
-        setSession({
+        const sessionData = {
           id: customer.id,
-          cpfCnpj: customer.cpf_cnpj
-        })
+          cpfCnpj: customer.cpf_cnpj,
+          password: customer.cpf_cnpj
+        }
+
+        if (rememberMe) {
+          await SecureStore.setItemAsync('session', JSON.stringify(sessionData))
+        }
+
+        setSession([false, sessionData])
       } else {
         alert('Credenciais inválidas')
       }
@@ -100,8 +104,10 @@ export function SessionProvider(props: React.PropsWithChildren) {
       alert('Erro ao realizar login')
     }
   }
-  const signOut = () => {
-    setSession(null)
+
+  const signOut = async () => {
+    await SecureStore.deleteItemAsync('session')
+    setSession([false, null])
   }
 
   return (

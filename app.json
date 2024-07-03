@@ -13,7 +13,12 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "splash": {
+        "image": "./assets/images/splash.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#000000"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -21,6 +26,7 @@
         "backgroundColor": "#ffffff"
       }
     },
+    
     "web": {
       "bundler": "metro",
       "output": "static",

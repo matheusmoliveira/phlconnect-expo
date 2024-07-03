@@ -19,6 +19,7 @@ import { ThemedView } from '@/components/ThemedView'
 import { API_TOKEN } from '@env'
 import axios from 'axios'
 import RNFetchBlob from 'rn-fetch-blob'
+import { LinearGradient } from 'expo-linear-gradient'
 
 import { useSession } from '../ctx'
 
@@ -135,6 +136,16 @@ export default function HomeScreen() {
     return value.toFixed(2).replace('.', ',')
   }
 
+  const formatDate = date => {
+    const [year, month, day] = date.split('-')
+    return `${day}/${month}`
+  }
+
+  const formatDateYear = date => {
+    const [year, month, day] = date.split('-')
+    return `${year}`
+  }
+
   const formatDueDay = dueDay => {
     const date = new Date(dueDay)
     return format(date, 'MMMM yyyy') // Formata o mês por extenso (ex: "Junho 2024")
@@ -142,159 +153,186 @@ export default function HomeScreen() {
 
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerBackgroundColor={{ light: '#D8D8D8', dark: '#D8D8D8' }}
       headerImage={
         <Image
-          source={require('@/assets/images/bg-phl.jpg')}
+          source={require('@/assets/images/logo-red.png')}
           style={styles.reactLogo}
         />
       }
     >
-      <ThemedView style={styles.titleContainer}>
-        {billings2.length > 0 && (
-          <ThemedText type="title" key={billings2[0].id}>
-            {capitalizeFirstLetter(billings2[0].customer.full_name.trim())}
-          </ThemedText>
-        )}
-      </ThemedView>
+      <LinearGradient colors={['#8D1F1F', '#B73737']} style={styles.gradient1}>
+        <ThemedView style={styles.titleContainer}>
+          {billings2.length > 0 && (
+            <ThemedText
+              style={styles.titleStyle}
+              type="title"
+              key={billings2[0].id}
+            >
+              {capitalizeFirstLetter(billings2[0].customer.full_name.trim())}
+            </ThemedText>
+          )}
+        </ThemedView>
 
-      <ThemedView style={styles.pixContainer}>
-        <ThemedText style={styles.titleBoletosAbertos} type="subtitle">
-          Boletos em Aberto
-        </ThemedText>
-        <ScrollView>
-          {billings.length === 0 ? (
-            <View style={styles.noBillingContainer}>
-              <Text style={styles.noBillingText}>
-                Não há boletos em aberto.
-              </Text>
-            </View>
-          ) : (
-            billings.map((billing, index) => (
-              <View key={billing.id} style={styles.rowContainer}>
-                <View style={styles.rowContainertesting}>
-                  <View style={styles.codeContainerPayment}>
-                    <Text style={styles.codetextPayment}>
-                      {getMonthName(billing.due_day)}
-                    </Text>
-                    <View style={styles.underlineContainer3}></View>
-                    <Text style={styles.codetextPayment2}>
-                      {billing.situation.name}
-                    </Text>
-                  </View>
-                  <View style={styles.codeContainer}>
-                    <View style={styles.codeContaPayment}>
-                      <View style={styles.codeInfoPayment}>
-                        <Text style={styles.textPayment}>
-                          Valor da mensalidade
-                        </Text>
-                        <Text style={styles.textPaymentReturn}>
-                          R$ {formatValue(billing.value)}
-                        </Text>
-                      </View>
-                      <View style={styles.codeInfoPayment}>
-                        <Text style={styles.textPayment}>Vencimento</Text>
-                        <Text style={styles.textPaymentReturn}>
-                          {billing.due_day}
-                        </Text>
+        <ThemedView style={styles.pixContainer}>
+          <ThemedText style={styles.titleBoletosAbertos} type="subtitle">
+            Boletos em Aberto
+          </ThemedText>
+          <ScrollView>
+            {billings.length === 0 ? (
+              <View style={styles.noBillingContainer}>
+                <Text style={styles.noBillingText}>
+                  Não há boletos em aberto.
+                </Text>
+              </View>
+            ) : (
+              billings.map((billing, index) => (
+                <View key={billing.id} style={styles.rowContainer}>
+                  <View style={styles.rowContainertesting}>
+                    <View style={styles.codeContainerPayment}>
+                      <Text style={styles.codetextPayment}>
+                        {getMonthName(billing.due_day)}
+                      </Text>
+                      <Text style={styles.codetextPaymentYear}>
+                        {formatDateYear(billing.due_day)}
+                      </Text>
+                      <View style={styles.underlineContainer3}></View>
+                      <Text style={styles.codetextPayment2}>
+                        {billing.situation.name}
+                      </Text>
+                    </View>
+                    <View style={styles.codeContainer}>
+                      <View style={styles.codeContaPayment}>
+                        <View style={styles.codeInfoPayment}>
+                          <Text style={styles.textPayment}>
+                            Valor da mensalidade:
+                          </Text>
+                          <Text style={styles.textPaymentReturn}>
+                            R$ {formatValue(billing.value)}
+                          </Text>
+                        </View>
+                        <View style={styles.codeInfoPayment}>
+                          <Text style={styles.textPayment}>Vencimento:</Text>
+                          <Text style={styles.textPaymentReturn}>
+                            {formatDate(billing.due_day)}
+                          </Text>
+                        </View>
                       </View>
                     </View>
                   </View>
-                </View>
-                <View style={styles.buttonInfoPix}>
-                  <TouchableOpacity
-                    style={styles.copyButton}
-                    onPress={() => downloadBoleto(billing.integration_link)}
-                  >
-                    <Icon
-                      name="download-circle-outline"
-                      size={23}
-                      color="#000"
-                    />
+                  <View style={styles.buttonInfoPix}>
+                    <TouchableOpacity
+                      style={styles.copyButton}
+                      onPress={() => downloadBoleto(billing.integration_link)}
+                    >
+                      <Icon name="download" size={23} color="#711111" />
 
-                    <Text style={styles.copyButtonText}>Acessar boleto</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.copyButton}
-                    onPress={() => copyToClipboard(billing.pix_copy_paste)}
-                  >
-                    <Icon name="content-copy" size={23} color="#000" />
-                    <Text style={styles.copyButtonText}>
-                      Copiar código de barras
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.copyButton}
-                    onPress={() => copyToClipboard2(billing.pix_copy_paste)}
-                  >
-                    <Icon name="content-copy" size={23} color="#000" />
-                    <Text style={styles.copyButtonText}>
-                      Copiar código de PIX
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ))
-          )}
-        </ScrollView>
-      </ThemedView>
-      <View style={styles.underlineContainer}></View>
-      <ThemedView style={styles.pixContainer2}>
-        <ThemedText style={styles.titleBoletosPagos} type="subtitle">
-          Boletos Pagos
-        </ThemedText>
-        <ScrollView>
-          {billings2.map((billing2, index) => (
-            <View style={styles.rowContainer2}>
-              <View style={styles.codeContainerPayment2}>
-                <Text style={styles.codetextPayment}>
-                  {getMonthName(billing2.date_payment)}
-                </Text>
-
-                <View style={styles.underlineContainer2}></View>
-
-                <Text style={styles.codetextPayment2} key={billing2.id}>
-                  {billing2.situation.name}
-                </Text>
-              </View>
-              <View key={index} style={styles.codeContainer2}>
-                <View style={styles.codeContaPayment}>
-                  <View style={styles.codeInfoPayment}>
-                    <Text style={styles.textPayment}>Valor Pagamento</Text>
-                    <Text style={styles.textPaymentReturn}>
-                      R$ {formatValue(billing2.value)}
-                    </Text>
-                  </View>
-
-                  <View style={styles.codeInfoPayment}>
-                    <Text style={styles.textPayment}>Data Pagamento</Text>
-                    <Text style={styles.textPaymentReturn}>
-                      {billing2.date_payment}
-                    </Text>
+                      <Text style={styles.copyButtonText}>Acessar boleto</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.copyButton}
+                      onPress={() => copyToClipboard2(billing.pix_copy_paste)}
+                    >
+                      <Icon name="content-copy" size={23} color="#711111" />
+                      <Text style={styles.copyButtonText}>
+                        Copiar código PIX
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.copyButton}
+                      onPress={() => copyToClipboard(billing.pix_copy_paste)}
+                    >
+                      <Icon name="content-copy" size={23} color="#711111" />
+                      <Text style={styles.copyButtonText}>
+                        Copiar código de barras
+                      </Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
+              ))
+            )}
+          </ScrollView>
+        </ThemedView>
+        {/* <View style={styles.underlineContainer}></View> */}
+        <ThemedView style={styles.pixContainer2}>
+          <ThemedText style={styles.titleBoletosPagos} type="subtitle">
+            Boletos Pagos
+          </ThemedText>
+          <ScrollView>
+            {billings2.map((billing2, index) => (
+              <View style={styles.rowContainer2}>
+                <View style={styles.codeContainerPayment2}>
+                  <Text style={styles.codetextPayment}>
+                    {getMonthName(billing2.date_payment)}
+                  </Text>
+                  <Text style={styles.codetextPaymentYear}>
+                    {formatDateYear(billing2.due_day)}
+                  </Text>
+
+                  <View style={styles.underlineContainer2}></View>
+
+                  <Text style={styles.codetextPayment2} key={billing2.id}>
+                    {billing2.situation.name}
+                  </Text>
+                </View>
+                <View key={index} style={styles.codeContainer2}>
+                  <View style={styles.codeContaPayment}>
+                    <View style={styles.codeInfoPayment}>
+                      <Text style={styles.textPayment}>Valor Pagamento</Text>
+                      <Text style={styles.textPaymentReturn}>
+                        R$ {formatValue(billing2.value)}
+                      </Text>
+                    </View>
+
+                    <View style={styles.codeInfoPayment}>
+                      <Text style={styles.textPayment}>Data Pagamento</Text>
+                      <Text style={styles.textPaymentReturn}>
+                        {formatDate(billing2.date_payment)}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
               </View>
-            </View>
-          ))}
-        </ScrollView>
-      </ThemedView>
+            ))}
+          </ScrollView>
+        </ThemedView>
+      </LinearGradient>
     </ParallaxScrollView>
   )
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  gradient1: {
+    flex: 1,
+    borderTopLeftRadius: 60,
+    borderTopRightRadius: 60,
+    width: '100%',
     alignItems: 'center'
+  },
+  titleContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    marginTop: '5%',
+    backgroundColor: '#7B1616'
     /* gap: 8 */
+  },
+  titleStyle: {
+    color: '#FFF',
+    fontSize: 15,
+    paddingTop: 2,
+    paddingBottom: 2,
+    paddingRight: '8%',
+    paddingLeft: '8%'
   },
   stepContainer: {
     /*   gap: 8,
     marginBottom: 8 */
   },
   pixContainer: {
+    width: '80%',
     marginTop: '5%',
-    marginBottom: '0%',
+    marginBottom: '5%',
     paddingLeft: '5%',
     paddingRight: '5%',
     alignItems: 'center',
@@ -313,7 +351,29 @@ const styles = StyleSheet.create({
       }
     })
   },
+  codeContainerPayment: {
+    color: '#FFF',
+    backgroundColor: '#FD7529',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '35%',
+    height: 130,
+    borderBottomLeftRadius: 10,
+    borderTopLeftRadius: 10,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 3
+      },
+      android: {
+        elevation: 10
+      }
+    })
+  },
   pixContainer2: {
+    width: '80%',
     marginTop: '0%',
     marginBottom: '0%',
     paddingLeft: '5%',
@@ -335,38 +395,16 @@ const styles = StyleSheet.create({
     })
   },
 
-  codeContainerPayment: {
-    color: '#FFF',
-    backgroundColor: '#ff6c02',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '25%',
-    height: 80,
-    borderBottomLeftRadius: 10,
-    borderTopLeftRadius: 10,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.2,
-        shadowRadius: 3
-      },
-      android: {
-        elevation: 10
-      }
-    })
-  },
-
   reactLogo: {
-    height: '100%',
+    height: '50%',
     width: '100%',
     bottom: 0,
     left: 0,
-    position: 'absolute'
+    resizeMode: 'contain'
   },
   copyButton: {
-    marginTop: 8,
-    marginBottom: 8,
+    marginTop: 4,
+    marginBottom: 4,
     borderRadius: 5,
     width: '60%',
     alignItems: 'center',
@@ -375,15 +413,19 @@ const styles = StyleSheet.create({
   },
   copyButtonText: {
     fontSize: 10,
-    marginLeft: 15
+    marginLeft: 10,
+    color: '#711111'
   },
-  titleContainer: {
-    fontSize: '13'
-  },
+
   codetextPayment: {
     color: '#FFF',
-    fontSize: 12,
+    fontSize: 20,
     fontWeight: '800'
+  },
+  codetextPaymentYear: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: '600'
   },
   codetextPayment2: {
     color: '#FFF',
@@ -391,11 +433,13 @@ const styles = StyleSheet.create({
   },
 
   titleBoletosAbertos: {
+    color: '#711111',
     marginTop: '10%',
     marginBottom: '5%',
     fontSize: 15
   },
   titleBoletosPagos: {
+    color: '#711111',
     marginTop: '10%',
     marginBottom: '5%',
     fontSize: 15
@@ -403,13 +447,12 @@ const styles = StyleSheet.create({
 
   codeContainerPayment2: {
     color: '#FFF',
-    backgroundColor: '#00aa50',
+    backgroundColor: '#12A771',
     alignItems: 'center',
     justifyContent: 'center',
-
     padding: 8,
-    width: '25%',
-    height: '100%',
+    width: '35%',
+    height: 130,
     borderBottomLeftRadius: 10,
     borderTopLeftRadius: 10,
     ...Platform.select({
@@ -426,8 +469,8 @@ const styles = StyleSheet.create({
   },
   codeContainer: {
     justifyContent: 'center',
-    width: '75%',
-    height: 80,
+    width: '65%',
+    height: 130,
     backgroundColor: '#FFF',
     borderBottomRightRadius: 10,
     borderTopRightRadius: 10,
@@ -447,8 +490,8 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     padding: 10,
     justifyContent: 'center',
-    width: '75%',
-    height: '100%',
+    width: '65%',
+    height: 130,
     backgroundColor: '#FFF',
     borderBottomRightRadius: 10,
     borderTopRightRadius: 10,
@@ -482,7 +525,10 @@ const styles = StyleSheet.create({
     marginTop: 10
   },
   buttonInfoPix: {
-    width: '100%'
+    width: '100%',
+    marginTop: '10%',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   rowContainer2: {
     flexDirection: 'row',
@@ -495,18 +541,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF'
   },
   codeInfoPayment: {
-    flexDirection: 'column'
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: '5%',
+    marginBottom: '5%',
+    backgroundColor: '#FFF'
   },
   codeContaPayment: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'space-around'
+    justifyContent: 'center'
   },
   textPayment: {
-    fontSize: 10
+    fontSize: 10,
+    color: '#711111'
   },
   textPaymentReturn: {
-    fontSize: 10,
+    fontSize: 18,
+    color: '#711111',
     fontWeight: '700'
   },
   underlineContainer: {
