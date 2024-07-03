@@ -88,12 +88,14 @@ const styles = StyleSheet.create({
     flex: 1
   },
   header: {
-    height: 250,
-    overflow: 'hidden'
+    height: 200,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   content: {
     flex: 1,
-    padding: 32,
+    padding: 0,
     gap: 16,
     overflow: 'hidden'
   },
